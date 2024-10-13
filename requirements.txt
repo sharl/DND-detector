@@ -1,0 +1,4 @@
+schedule
+pystray
+pywin32
+requests
