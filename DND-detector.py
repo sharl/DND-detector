@@ -22,6 +22,7 @@ class DQX:
     def __init__(self):
         self.running = False
         self.existing = False
+        self.paused = False
         self.switchbot = SwitchBot()
         # API access count
         self.count = 0
@@ -29,12 +30,18 @@ class DQX:
         self.on_image = Image.open(io.BytesIO(binascii.unhexlify(ON.replace('\n', '').strip())))
         self.off_image = Image.open(io.BytesIO(binascii.unhexlify(OFF.replace('\n', '').strip())))
         menu = Menu(
+            MenuItem('Pause', self.pauseApp, checked=lambda _: self.paused),
+            Menu.SEPARATOR,
             MenuItem('Exit', self.stopApp),
         )
         self.app = Icon(name=NAME, title=NAME, icon=self.off_image, menu=menu)
         self.detect()
 
     def detect(self):
+        if self.paused:
+            print('paused')
+            return
+
         self.proc = None
 
         def EnumWindowsProc(hWnd):
@@ -60,6 +67,9 @@ class DQX:
                 self.app.icon = self.on_image
                 print('running, turn on plug', self.count)
         self.app.update_menu()
+
+    def pauseApp(self):
+        self.paused = not self.paused
 
     def runSchedule(self):
         # SwitchBot API rate limit: 10000 times per day
